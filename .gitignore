@@ -21,3 +21,11 @@ simulation_data/
 trained_models/
 policy_data/
 error_data/
+src/trained_rl_models/
+src/checkpoints/
+src/my_models/test/
+*.zip
+*.pkl
+
+# VSCode
+*.code-workspace

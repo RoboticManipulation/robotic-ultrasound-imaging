@@ -131,8 +131,8 @@ class Ultrasound(SingleArmEnv):
         initial_probe_pos_randomization=False,
         use_box_torso=True,
     ):
-        assert gripper_types == "UltrasoundProbeGripper",\
-            "Tried to specify gripper other than UltrasoundProbeGripper in Ultrasound environment!"
+        # assert gripper_types == "UltrasoundProbeGripper",\
+        #     "Tried to specify gripper other than UltrasoundProbeGripper in Ultrasound environment!"
 
         assert robots == "UR5e" or robots == "Panda", \
             "Robot must be UR5e or Panda!"
@@ -832,7 +832,8 @@ class Ultrasound(SingleArmEnv):
         # find initial joint positions
         if self.robots[0].name == "UR5e":
             robot = rtb.models.DH.UR5()
-            sol = robot.ikine_min(T, q0=self.robots[0].init_qpos)
+            #sol = robot.ikine_min(T, q0=self.robots[0].init_qpos)
+            sol = robot.ikine_LM(T, q0=self.robots[0].init_qpos)
 
             # flip last joint around (pi)
             sol.q[-1] -= np.pi
@@ -840,7 +841,8 @@ class Ultrasound(SingleArmEnv):
 
         elif self.robots[0].name == "Panda":
             robot = rtb.models.DH.Panda()
-            sol = robot.ikine_min(T, q0=self.robots[0].init_qpos)
+            #sol = robot.ikine_min(T, q0=self.robots[0].init_qpos)
+            sol = robot.ikine_LM(T, q0=self.robots[0].init_qpos)
             return sol.q
 
 

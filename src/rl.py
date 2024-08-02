@@ -1,6 +1,7 @@
 import robosuite as suite
 import os
 import yaml
+from multiprocessing import Process, freeze_support, set_start_method
 
 from robosuite.wrappers import GymWrapper
 from robosuite import load_controller_config
@@ -21,7 +22,7 @@ from my_models.grippers import UltrasoundProbeGripper
 from my_environments import Ultrasound
 from utils.common import register_gripper
 
-import gym
+import gymnasium as gym
 
 
 def make_robosuite_env(env_id, options, rank, seed=0):
@@ -37,7 +38,8 @@ def make_robosuite_env(env_id, options, rank, seed=0):
         register_gripper(UltrasoundProbeGripper)
         env = GymWrapper(suite.make(env_id, **options))
         env = Monitor(env)
-        env.seed(seed + rank)
+        env.reset(seed=seed + rank, options={})
+        #env.seed(seed + rank)
         return env
     set_random_seed(seed)
     return _init
@@ -80,12 +82,8 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
     return func
 
-
-if __name__ == '__main__':
+def main(config):
     register_env(Ultrasound)
-
-    with open("rl_config.yaml", 'r') as stream:
-        config = yaml.safe_load(stream)
 
     # Environment specifications
     env_options = config["robosuite"]
@@ -201,4 +199,17 @@ if __name__ == '__main__':
 
         env.close()
 
-
+if __name__ == "__main__":
+    debug = False
+    with open("rl_config.yaml", 'r') as stream:
+        config = yaml.safe_load(stream)
+    # Ensure thread safe start method for SB3 SubprocVecEnv
+    # See: https://stable-baselines3.readthedocs.io/en/master/guide/vec_envs.html
+    # See: https://docs.python.org/3/library/multiprocessing.html#the-spawn-and-forkserver-start-methods
+    if config["training"] == True and debug == False:
+        freeze_support()
+        set_start_method('forkserver')
+        p = Process(target=main(config))
+        p.start()
+    else:
+        main(config)
