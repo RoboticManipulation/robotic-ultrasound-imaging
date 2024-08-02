@@ -62,7 +62,7 @@ class SoftBoxObject(MujocoXMLObject):
     """
 
     def __init__(self, name, damping=None, stiffness=None):
-        super().__init__("my_models/assets/objects/soft_box.xml", name=name, duplicate_collision_geoms=False)
+        super().__init__("my_models/assets/objects/box.xml", name=name, duplicate_collision_geoms=False)
 
         self.damping = damping
         self.stiffness = stiffness
